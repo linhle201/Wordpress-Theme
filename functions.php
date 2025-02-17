@@ -26,6 +26,7 @@ function add_widget_support() {
 }
 // Hook the widget initiation and run our function
 add_action( 'widgets_init', 'add_widget_support' );
+add_theme_support( 'widgets' );
 
 function my_theme_enqueue_styles() {
   wp_enqueue_style('my-theme-style', get_stylesheet_uri());
