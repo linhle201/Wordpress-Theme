@@ -74,3 +74,66 @@ function custom_excerpt_length($length) {
   return 30; // Adjust the number (default is 55) to the desired word count for the excerpt
 }
 add_filter('excerpt_length', 'custom_excerpt_length');
+
+function add_font_awesome() {
+  wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css' );
+}
+add_action( 'wp_enqueue_scripts', 'add_font_awesome' );
+
+function display_related_posts_function() {
+  // Get the tags of the current post
+  $tags = get_the_tags();
+
+  if ($tags) {
+      // Create an array to hold the tag IDs
+      $tag_ids = array();
+
+      // Loop through the tags and get the IDs
+      foreach ($tags as $tag) {
+          $tag_ids[] = $tag->term_id;
+      }
+
+      // Set up the query to fetch posts with the same tags
+      $args = array(
+          'tag__in' => $tag_ids, // Filter by these tags
+          'post__not_in' => array(get_the_ID()), // Exclude the current post
+          'posts_per_page' => 5, // Limit to 5 posts
+          'ignore_sticky_posts' => 1 // Avoid sticky posts
+      );
+
+      // Query for related posts
+      $related_posts = new WP_Query($args);
+
+      if ($related_posts->have_posts()) :
+          echo '<div class="related-posts">';
+          echo '<h2>Related Posts</h2>';
+          echo '<ul>';
+
+          // Loop through the related posts and display them
+          while ($related_posts->have_posts()) : $related_posts->the_post();
+              echo '<li><a href="' . get_permalink() . '">' . get_the_title() . '</a></li>';
+          endwhile;
+
+          echo '</ul>';
+          echo '</div>';
+      endif;
+
+      // Reset postdata
+      wp_reset_postdata();
+  }
+}
+
+// Hook into 'display_related_posts' to call this function
+add_action('display_related_posts', 'display_related_posts_function');
+
+// In your plugin file
+function my_custom_related_posts() {
+  // This is where we will display the related posts
+  do_action('display_related_posts'); // Triggering the action hook
+}
+add_action('wp_footer', 'my_custom_related_posts');
+
+
+
+
+

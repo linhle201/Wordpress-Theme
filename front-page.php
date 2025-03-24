@@ -32,85 +32,85 @@
     </nav>
 </header>
 
-<main class="container mt-4">
-    <div class="row">
-        <?php
-        // Query for each category
-        $categories = get_categories();
-        foreach ($categories as $category) :
-            // Display Category Name
-            echo '<h2 class="category-h">' . $category->name . '</h2>';
+<div class="pin-container">
 
-            // Query for the latest 4 posts in the category
-            $args = array(
-                'category_name' => $category->slug,
-                'posts_per_page' => 4,
-            );
-            $category_query = new WP_Query($args);
+<?php
 
-            if ($category_query->have_posts()) :
-                // Column 1: Display the first post (Featured Post with Image and Content)
-                $category_query->the_post();
-                ?>
-                <div class="col-md-7 mb-4"> 
-                    <article class="featured-post">
-                        <a href="<?php the_permalink(); ?>" style="text-decoration: none !important;">
-                            <!-- Display Featured Image (Thumbnail) -->
-                            <?php if (has_post_thumbnail()) : ?>
-                                <div class="post-thumbnail">
-                                    <?php the_post_thumbnail('medium', ['class' => 'img-fluid']); ?>
-                                </div>
-                            <?php endif; ?>
-                            <h3><?php the_title(); ?></h3>
-                        </a>
-                        <p>By: <?php the_author(); ?></p>
-                        <p><?php the_excerpt(); ?></p> 
-                    </article>
+// Get 50 random photos to display on home page
+$featured = get_posts(array(
+    'numberposts' => 50,
+    'post_status' => 'publish',
+    'orderby' => 'rand')
+);
+
+// Ouput each photo
+foreach($featured as $fp){
+    $photo_src = get_the_post_thumbnail_url($fp->ID, 'large');
+    $post_url = get_permalink($fp->ID);
+    $author_name =  get_the_author_meta('display_name', $fp->post_author);
+    $avatar_src = get_avatar_url($fp->post_author);  
+    $author_url = get_author_posts_url($fp->post_author);
+    ?>
+
+<div class="pin-box">
+    <a href="<?= $post_url ?>"></a>
+    <img src="<?= $photo_src ?>" alt="Post Image">
+    <div class="pin-caption">
+        <!-- Author Avatar -->
+        <div class="author-avatar-container">
+            <img class="author-avatar" src="<?= $avatar_src ?>" />
+        </div>
+        <div class="author-name"><?= $author_name ?></div>
+
+        <!-- Author info container (hidden by default) -->
+        <div class="author-info" data-author-id="<?= $fp->post_author ?>">
+            <div class="author-container">
+                <div class="author-image">
+                    <?= get_avatar($fp->post_author, 150); ?>
                 </div>
+                <div class="author-details">
+                    <h1 class="author-name"><?= $author_name ?></h1>
+                    <p class="author-email">
+                        <a href="mailto:<?php echo esc_attr(get_the_author_meta('user_email', $fp->post_author)); ?>">
+                            <?php echo esc_html(get_the_author_meta('user_email', $fp->post_author)); ?>
+                        </a>
+                    </p>
+                    <p class="author-bio"><?= get_the_author_meta('description', $fp->post_author); ?></p>
 
-                <!-- Column 2: Display the next 3 posts in 2-column layout (Image + Content) -->
-                <div class="col-md-5">
-                    <div class="container">
-                        <?php
-                        // Display the next 3 posts (with images)
-                        $count = 0;
-                        while ($category_query->have_posts() && $count < 3) :
-                            $category_query->the_post();
-                        ?>
-                            <div class="post-container row mb-1">
-                                <!-- Image-->
-                                <div class="col-md-6 mb-3">
-                                    <div class="smallpost-thumbnail">
-                                        <?php if (has_post_thumbnail()) : ?>
-                                            <a href="<?php the_permalink(); ?>">
-                                                <?php the_post_thumbnail('small', ['class' => 'img-fluid']); ?>
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                    <div class="author-posts">
+                        <h4>Recent Posts:</h4>
+                        <ul>
+                            <?php
+                            // Get 3 most recent posts from the author
+                            $recent_posts = get_posts(array(
+                                'author' => $fp->post_author,
+                                'numberposts' => 3,
+                                'orderby' => 'date',
+                                'order' => 'DESC',
+                            ));
+                            foreach ($recent_posts as $post) :
+                                ?>
+                                <li><a href="<?= get_permalink($post->ID); ?>"><?= get_the_title($post->ID); ?></a></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
 
-                                <!-- Content -->
-                                <div class="col-md-6">
-                                    <div class="post-content">
-                                        <h4><a href="<?php the_permalink(); ?>" style="text-decoration: none;"><?php the_title(); ?></a></h4>
-                                        <p>By: <?php the_author(); ?></p>
-                                        <p><?php echo wp_trim_words(get_the_excerpt(), 20, '...'); ?></p>     
-                                    </div>
-                                </div>
-                            </div>
-                        <?php
-                            $count++;
-                        endwhile;
-                        wp_reset_postdata();
-                        ?>
+                    <div class="author-profile-link">
+                        <a href="<?= get_author_posts_url($fp->post_author); ?>">View Profile</a>
                     </div>
                 </div>
-
-            <?php endif; endforeach; ?>
+            </div>
+        </div>
     </div>
-</main>
+</div>
+<?php
+}
+?>
+
+</div><!-- ./pin-container -->
 
 <?php get_footer(); ?>
 
 </body>
 </html>
+
