@@ -53,56 +53,13 @@ foreach($featured as $fp){
     ?>
 
 <div class="pin-box">
-    <a href="<?= $post_url ?>"></a>
-    <img src="<?= $photo_src ?>" alt="Post Image">
-    <div class="pin-caption">
-        <!-- Author Avatar -->
-        <div class="author-avatar-container">
-            <img class="author-avatar" src="<?= $avatar_src ?>" />
-        </div>
-        <div class="author-name"><?= $author_name ?></div>
-
-        <!-- Author info container (hidden by default) -->
-        <div class="author-info" data-author-id="<?= $fp->post_author ?>">
-            <div class="author-container">
-                <div class="author-image">
-                    <?= get_avatar($fp->post_author, 150); ?>
-                </div>
-                <div class="author-details">
-                    <h1 class="author-name"><?= $author_name ?></h1>
-                    <p class="author-email">
-                        <a href="mailto:<?php echo esc_attr(get_the_author_meta('user_email', $fp->post_author)); ?>">
-                            <?php echo esc_html(get_the_author_meta('user_email', $fp->post_author)); ?>
-                        </a>
-                    </p>
-                    <p class="author-bio"><?= get_the_author_meta('description', $fp->post_author); ?></p>
-
-                    <div class="author-posts">
-                        <h4>Recent Posts:</h4>
-                        <ul>
-                            <?php
-                            // Get 3 most recent posts from the author
-                            $recent_posts = get_posts(array(
-                                'author' => $fp->post_author,
-                                'numberposts' => 3,
-                                'orderby' => 'date',
-                                'order' => 'DESC',
-                            ));
-                            foreach ($recent_posts as $post) :
-                                ?>
-                                <li><a href="<?= get_permalink($post->ID); ?>"><?= get_the_title($post->ID); ?></a></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-
-                    <div class="author-profile-link">
-                        <a href="<?= get_author_posts_url($fp->post_author); ?>">View Profile</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="<?= $post_url ?>"></a>
+        <img src="<?= $photo_src ?>">
+        <div class="pin-caption">
+            <img src="<?= $avatar_src ?>">
+            <div><?= $author_name ?></div>
+        </div>  
     </div>
-</div>
 <?php
 }
 ?>
